@@ -1,13 +1,28 @@
 # Docker Compose with N8N + RabbitMQ and PostgreSQL (Admire)
-Just configure the local HTTPS license and change the users if you want, then just upload the containers.
+First, install the Node modules
+```
+npm install
+```
+
+Second, configure the local HTTPS license and change the users if you want, then just upload the containers.
 ```
 openssl req -x509 -nodes -newkey rsa:2048 -keyout n8n.key -out n8n.crt -days 365
+```
+
+Create the enviroment file with .env
+```
+RABBIT_HOST=
+RABBIT_PORT=5672
+RABBIT_USER=
+RABBIT_PASS=
+RABBIT_PROTOCOL=amqp
+RABBIT_QUEUE=
 ```
 
 ## Start the containers
 Upload the containers with `docker-compose.yml`
 ```
-docker compose up -d
+docker-compose -f config/docker-compose.yml up -d
 ```
 
 ## Environments

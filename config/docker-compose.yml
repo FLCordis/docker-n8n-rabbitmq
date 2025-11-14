@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 🗃️ Banco de Dados PostgreSQL
   postgres:
@@ -11,7 +9,7 @@ services:
       POSTGRES_PASSWORD: n8npass
       POSTGRES_DB: n8n_db
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ../postgres_data:/var/lib/postgresql/data
     networks:
       - n8n-network
 
@@ -79,9 +77,9 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=adminpass
 
     volumes:
-      - ./n8n.crt:/certs/n8n.crt:ro
-      - ./n8n.key:/certs/n8n.key:ro
-      - ./.n8n:/home/node/.n8n
+      - ../n8n.crt:/certs/n8n.crt:ro
+      - ../n8n.key:/certs/n8n.key:ro
+      - ../.n8n:/home/node/.n8n
 
     networks:
       - n8n-network
