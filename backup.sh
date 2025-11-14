@@ -1,6 +1,6 @@
 #!/bin/bash
 # ======================================
-# 🧠 Backup e Restore do Ambiente N8N + RabbitMQ + PostgreSQL
+# 🧠 Backup and Restore for N8N + RabbitMQ + PostgreSQL Environment
 # ======================================
 
 BASE_DIR="$(dirname "$(realpath "$0")")"
@@ -10,23 +10,23 @@ DATE=$(date +'%Y-%m-%d_%H-%M-%S')
 mkdir -p "$BACKUP_DIR"
 
 usage() {
-  echo "Uso:"
-  echo "  ./backup.sh backup     → cria backup completo"
-  echo "  ./backup.sh restore <arquivo>  → restaura backup"
+  echo "Usage:"
+  echo "  ./backup.sh backup            → creates a full backup"
+  echo "  ./backup.sh restore <file>    → restores from a backup"
   exit 1
 }
 
 # ======================================
-# 🔹 FUNÇÃO DE BACKUP
+# 🔹 BACKUP FUNCTION
 # ======================================
 backup() {
   BACKUP_FILE="$BACKUP_DIR/n8n_backup_$DATE.tar.gz"
 
-  echo "📦 Iniciando backup do ambiente N8N + RabbitMQ + PostgreSQL"
-  echo "→ Dump do banco de dados PostgreSQL..."
+  echo "📦 Starting backup of N8N + RabbitMQ + PostgreSQL environment"
+  echo "→ Dumping PostgreSQL database..."
   docker exec -t postgres pg_dump -U n8nuser n8n > "$BACKUP_DIR/n8n_postgres_$DATE.sql"
 
-  echo "→ Compactando arquivos..."
+  echo "→ Compressing files..."
   tar -czf "$BACKUP_FILE" \
     -C "$BASE_DIR" .n8n \
     -C "$BASE_DIR" postgres_data \
@@ -36,53 +36,53 @@ backup() {
 
   rm "$BACKUP_DIR/n8n_postgres_$DATE.sql"
 
-  echo "✅ Backup concluído: $BACKUP_FILE"
+  echo "✅ Backup complete: $BACKUP_FILE"
 
-  # limpa backups antigos (opcional: +7 dias)
+  # Cleanup old backups (optional: older than 7 days)
   find "$BACKUP_DIR" -type f -mtime +7 -name "n8n_backup_*.tar.gz" -delete
 }
 
 # ======================================
-# 🔹 FUNÇÃO DE RESTORE
+# 🔹 RESTORE FUNCTION
 # ======================================
 restore() {
   if [ -z "$1" ]; then
-    echo "❌ Erro: você precisa informar o arquivo de backup."
-    echo "Exemplo: ./backup.sh restore backup/n8n_backup_2025-11-13_12-00-00.tar.gz"
+    echo "❌ Error: you must specify a backup file."
+    echo "Example: ./backup.sh restore backup/n8n_backup_2025-11-13_12-00-00.tar.gz"
     exit 1
   fi
 
   BACKUP_FILE="$1"
 
   if [ ! -f "$BACKUP_FILE" ]; then
-    echo "❌ Arquivo de backup não encontrado: $BACKUP_FILE"
+    echo "❌ Backup file not found: $BACKUP_FILE"
     exit 1
   fi
 
-  echo "♻️ Restaurando ambiente a partir de: $BACKUP_FILE"
+  echo "♻️ Restoring environment from: $BACKUP_FILE"
 
-  echo "→ Parando containers..."
+  echo "→ Stopping containers..."
   docker compose down
 
-  echo "→ Limpando dados antigos..."
+  echo "→ Cleaning old data..."
   rm -rf "$BASE_DIR/.n8n" "$BASE_DIR/postgres_data"
 
-  echo "→ Extraindo arquivos do backup..."
+  echo "→ Extracting files from backup..."
   tar -xzf "$BACKUP_FILE" -C "$BASE_DIR"
 
-  echo "→ Subindo containers..."
+  echo "→ Starting containers..."
   docker compose up -d
 
   sleep 10
 
-  echo "→ Restaurando banco de dados..."
-  docker exec -i postgres psql -U n8nuser n8n < "$BACKUP_DIR"/n8n_postgres_*.sql 2>/dev/null || echo "⚠️ Dump SQL não encontrado (provavelmente incluso no tar)."
+  echo "→ Restoring database..."
+  docker exec -i postgres psql -U n8nuser n8n < "$BACKUP_DIR"/n8n_postgres_*.sql 2>/dev/null || echo "⚠️ SQL dump not found (probably included in the tar)."
 
-  echo "✅ Restore concluído com sucesso!"
+  echo "✅ Restore completed successfully!"
 }
 
 # ======================================
-# 🚀 EXECUÇÃO
+# 🚀 EXECUTION
 # ======================================
 case "$1" in
   backup)
