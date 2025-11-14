@@ -1,0 +1,17 @@
+# Ignorar dados sensíveis e temporários do N8N e Postgres
+.n8n/
+backup/
+postgres_data/
+
+# Chave e certificado SSL (cuidado ao versionar em repositórios públicos)
+n8n.crt
+n8n.key
+
+# Arquivos de backup gerados
+*.bak
+*.tar.gz
+*.zip
+
+# Ignorar arquivos de log e temporários em geral
+*.log
+*.tmp
